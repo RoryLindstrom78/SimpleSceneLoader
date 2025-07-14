@@ -32,10 +32,14 @@
     <ClInclude Include="objectLoader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\..\Downloads\stb_image.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="vertexShader.vs" />
     <None Include="fragmentShader.vs" />
+    <None Include="README.md" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="objects.txt" />

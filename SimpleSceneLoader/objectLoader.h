@@ -12,6 +12,7 @@ struct sceneObject {
 	glm::vec3 Position;
 	glm::vec3 Size;
 	glm::vec3 Rotation;
+	std::string textureFile;
 };
 
 class objectLoader {
