@@ -114,6 +114,10 @@ int main() {
         return -1;
     }
 
+    // setup object loader
+    objectLoader objLoader("C:\\Users\\HACKSHIT\\source\\repos\\SimpleSceneLoader\\SimpleSceneLoader\\objects.txt");
+
+
     // Need to allow usage of the z buffer to know the depth of objects
     glEnable(GL_DEPTH_TEST);
     Shader ourShader("vertexShader.vs", "fragmentShader.vs"); // you can name your shader files however you like
@@ -167,12 +171,27 @@ int main() {
         int projLoc = glGetUniformLocation(ourShader.ID, "projection");
         glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
-        glm::mat4 model = glm::mat4(1.0f);
-        ourShader.setMat4("model", model);
-
         glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+        for (sceneObject obj : objLoader.objects) {
+            glm::mat4 model = glm::mat4(1.0f);
 
+            // Translate
+            model = glm::translate(model, obj.Position);
+
+            // Scale
+            model = glm::scale(model, obj.Size);
+
+            // Rotate each axis one at a time
+            model = glm::rotate(model, glm::radians(obj.Rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
+            model = glm::rotate(model, glm::radians(obj.Rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
+            model = glm::rotate(model, glm::radians(obj.Rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
+
+            // Pass to shader
+            ourShader.setMat4("model", model);
+
+            // draw the cube
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+        }
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
