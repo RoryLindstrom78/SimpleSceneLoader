@@ -8,7 +8,9 @@
 
 #include "camera.h"
 #include "shader.h"
+#include "objectLoader.h";
 
+#include <string>
 #include <iostream>
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
