@@ -136,10 +136,10 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\..\Downloads\stb_image.h" />
     <ClInclude Include="camera.h" />
     <ClInclude Include="objectLoader.h" />
     <ClInclude Include="shader.h" />
+    <ClInclude Include="stb_image.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="fragmentShader.vs" />
@@ -148,6 +148,9 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="objects.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="house.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

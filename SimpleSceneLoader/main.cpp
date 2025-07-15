@@ -138,10 +138,51 @@ int main() {
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
     // texture attribute
-    //glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-    //glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+
+    // Use texture unit 0
+    ourShader.use();
+    ourShader.setInt("texture", 0);
+
+    stbi_set_flip_vertically_on_load(true);
 
 
+    // setup textures
+    for (sceneObject& obj : objLoader.objects) {
+        // Load texture
+        unsigned int texture;
+        glGenTextures(1, &texture);
+        glBindTexture(GL_TEXTURE_2D, texture);
+
+        // set texture parameters
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+        // load image
+        int width, height, nrChannels;
+        unsigned char* data = stbi_load(obj.textureFile.c_str(), &width, &height, &nrChannels, 0);
+        if (data) {
+            GLenum format = GL_RGB;
+            if (nrChannels == 1)
+                format = GL_RED;
+            else if (nrChannels == 3)
+                format = GL_RGB;
+            else if (nrChannels == 4)
+                format = GL_RGBA;
+
+            glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+            glGenerateMipmap(GL_TEXTURE_2D);
+        }
+        else {
+            std::cout << "Failed to load texture: " << obj.textureFile << std::endl;
+        }
+        stbi_image_free(data);
+
+        obj.textureID = texture;
+    }
 
     // render loop
     while (!glfwWindowShouldClose(window)) {
@@ -196,6 +237,10 @@ int main() {
 
             // Pass to shader
             ourShader.setMat4("model", model);
+
+            // bind object's texture
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, obj.textureID);
 
             // draw the cube
             glDrawArrays(GL_TRIANGLES, 0, 36);

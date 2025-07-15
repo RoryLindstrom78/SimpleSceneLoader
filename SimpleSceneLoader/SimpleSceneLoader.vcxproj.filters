@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="textures">
+      <UniqueIdentifier>{78b97139-81f5-4e9c-b581-bd59f593063a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -32,7 +35,7 @@
     <ClInclude Include="objectLoader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\Downloads\stb_image.h">
+    <ClInclude Include="stb_image.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -43,5 +46,10 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="objects.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="house.png">
+      <Filter>textures</Filter>
+    </Image>
   </ItemGroup>
 </Project>

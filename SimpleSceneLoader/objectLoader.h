@@ -13,6 +13,7 @@ struct sceneObject {
 	glm::vec3 Size;
 	glm::vec3 Rotation;
 	std::string textureFile;
+	int textureID;
 };
 
 class objectLoader {
@@ -32,14 +33,15 @@ public:
 		while (std::getline(inputFile, line)) {
 			if (line.empty()) continue;
 			// split by tab
-			std::vector<std::string> parts = split(line, '\t');
-			if (parts.size() < 4) continue; // must have all fields
+			std::vector<std::string> parts = split(line, ',');
+			if (parts.size() < 5) continue; // must have all fields
 
 			sceneObject obj;
 			obj.type = parts[0];
 			obj.Position = parseVec3(parts[1]);
 			obj.Size = parseVec3(parts[2]);
 			obj.Rotation = parseVec3(parts[3]);
+			obj.textureFile = parts[4];
 
 			objects.push_back(obj);
 		}
@@ -52,8 +54,10 @@ public:
 				<< obj.Size.x << ", " << obj.Size.y << ", " << obj.Size.z
 				<< ") rotation("
 				<< obj.Rotation.x << ", " << obj.Rotation.y << ", " << obj.Rotation.z
-				<< ")\n";
+				<< ") textureFile("
+				<< obj.textureFile << ")" << "\n";
 		}
+
 	}
 	
 	// Splits a string based on a specified delimiter
