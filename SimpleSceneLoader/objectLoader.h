@@ -12,9 +12,40 @@ struct sceneObject {
 	glm::vec3 Position;
 	glm::vec3 Size;
 	glm::vec3 Rotation;
+
+	sceneObject(const glm::vec3& pos, const glm::vec3& sze, const glm::vec3& rot)
+		: Position(pos), Size(sze), Rotation(rot) {
+	}
+	virtual ~sceneObject() = default;
+};
+
+struct CubeObject : public sceneObject {
 	std::string textureFile;
 	int textureID;
+
+	CubeObject(const std::string txtFile, const glm::vec3& pos, const glm::vec3& sze, const glm::vec3& rot)
+		: textureFile(txtFile), sceneObject(pos, sze, rot) {
+	}
 };
+
+struct LightObject : public sceneObject {
+	glm::vec3 Color;
+	float Intensity;
+
+	LightObject(const glm::vec3& color, const float intensity, const glm::vec3& pos, const glm::vec3& sze, const glm::vec3& rot)
+		: Color(color), Intensity(intensity), sceneObject(pos, sze, rot) {
+	}
+};
+
+
+//struct sceneObject {
+//	std::string type;
+//	glm::vec3 Position;
+//	glm::vec3 Size;
+//	glm::vec3 Rotation;
+//	std::string textureFile;
+//	int textureID;
+//};
 
 class objectLoader {
 public:	
@@ -36,27 +67,28 @@ public:
 			std::vector<std::string> parts = split(line, ',');
 			if (parts.size() < 5) continue; // must have all fields
 
-			sceneObject obj;
-			obj.type = parts[0];
-			obj.Position = parseVec3(parts[1]);
-			obj.Size = parseVec3(parts[2]);
-			obj.Rotation = parseVec3(parts[3]);
-			obj.textureFile = parts[4];
-
-			objects.push_back(obj);
+			if (parts[0] == "cube") {
+				// construct cube object
+				CubeObject cube(parts[4], parseVec3(parts[1]), parseVec3(parts[2]), parseVec3(parts[3]));
+				objects.push_back(cube);
+			}
+			else if (parts[0] == "light") {
+				// construct light object
+				LightObject light(parseVec3(parts[4]), std::stof(parts[5]), parseVec3(parts[1]), parseVec3(parts[2]), parseVec3(parts[3]));
+			}
 		}
 
 		// Debug: print all objects
-		for (const auto& obj : objects) {
-			std::cout << obj.type << ": pos("
-				<< obj.Position.x << ", " << obj.Position.y << ", " << obj.Position.z
-				<< ") size("
-				<< obj.Size.x << ", " << obj.Size.y << ", " << obj.Size.z
-				<< ") rotation("
-				<< obj.Rotation.x << ", " << obj.Rotation.y << ", " << obj.Rotation.z
-				<< ") textureFile("
-				<< obj.textureFile << ")" << "\n";
-		}
+		//for (const auto& obj : objects) {
+		//	std::cout << obj.type << ": pos("
+		//		<< obj.Position.x << ", " << obj.Position.y << ", " << obj.Position.z
+		//		<< ") size("
+		//		<< obj.Size.x << ", " << obj.Size.y << ", " << obj.Size.z
+		//		<< ") rotation("
+		//		<< obj.Rotation.x << ", " << obj.Rotation.y << ", " << obj.Rotation.z
+		//		<< ") textureFile("
+		//		<< obj.textureFile << ")" << "\n";
+		//}
 
 	}
 	

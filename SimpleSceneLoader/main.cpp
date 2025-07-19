@@ -13,6 +13,7 @@
 #include "objectLoader.h"
 #include "stb_image.h"
 
+#include <vector>
 #include <string>
 #include <iostream>
 
@@ -125,7 +126,7 @@ int main() {
 
     // Need to allow usage of the z buffer to know the depth of objects
     glEnable(GL_DEPTH_TEST);
-    Shader ourShader("vertexShader.vs", "fragmentShader.vs"); // you can name your shader files however you like
+    Shader cubeShader("vertexShader.vs", "fragmentShader.vs"); // you can name your shader files however you like
 
     unsigned int VBO, VAO;
     glGenVertexArrays(1, &VAO);
@@ -152,9 +153,9 @@ int main() {
         if (obj.type == "PointLight") numPointLights++;
 
     // Use texture unit 0
-    ourShader.use();
-    ourShader.setInt("texture", 0);
-    ourShader.setInt("numPointLights", numPointLights);
+    cubeShader.use();
+    cubeShader.setInt("texture", 0);
+    cubeShader.setInt("numPointLights", numPointLights);
 
     stbi_set_flip_vertically_on_load(true);
 
@@ -181,22 +182,22 @@ int main() {
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        ourShader.use();
+        cubeShader.use();
 
         // next we make a view matrix.
         glm::mat4 view;
         view = camera.GetViewMatrix();
-        ourShader.setMat4("view", view);
+        cubeShader.setMat4("view", view);
         // finally we define a projection matrix. We want to use perspective projection for our scene. 
         glm::mat4 projection;
         projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-        ourShader.setMat4("projection", projection);
+        cubeShader.setMat4("projection", projection);
 
         // view matrix
-        int viewLoc = glGetUniformLocation(ourShader.ID, "view");
+        int viewLoc = glGetUniformLocation(cubeShader.ID, "view");
         glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
         // projection matrix
-        int projLoc = glGetUniformLocation(ourShader.ID, "projection");
+        int projLoc = glGetUniformLocation(cubeShader.ID, "projection");
         glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
         glBindVertexArray(VAO);
@@ -215,7 +216,7 @@ int main() {
             model = glm::rotate(model, glm::radians(obj.Rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
 
             // Pass to shader
-            ourShader.setMat4("model", model);
+            cubeShader.setMat4("model", model);
 
             // bind object's texture
             glActiveTexture(GL_TEXTURE0);
