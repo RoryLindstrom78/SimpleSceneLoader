@@ -160,8 +160,15 @@ int main() {
     stbi_set_flip_vertically_on_load(true);
 
     // setup textures
-    for (sceneObject& obj : objLoader.objects) {
-        obj.textureID = loadTexture((obj.textureFile).c_str());
+    for (sceneObject obj : objLoader.objects) { // need to make sure this loop accounts for textures on cubes and colors on lights
+        sceneObject* obj = obj;
+        if (CubeObject* cube = dynamic_cast<CubeObject*>(obj)) {
+            // It's a CubeObject
+            cube->textureID = loadTexture((cube->textureFile).c_str());
+        }
+        else if (LightObject* light = dynamic_cast<LightObject*>(obj)) {
+            // It's a LightObject
+        }
     }
 
     // render loop
@@ -220,7 +227,7 @@ int main() {
 
             // bind object's texture
             glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, obj.textureID);
+            glBindTexture(GL_TEXTURE_2D, obj.textureID); // need to account for different kinds of objects in this loop
 
             // draw the cube
             glDrawArrays(GL_TRIANGLES, 0, 36);
