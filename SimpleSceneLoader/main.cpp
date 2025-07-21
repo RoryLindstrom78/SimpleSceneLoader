@@ -161,7 +161,7 @@ int main() {
     // get number of PointLights
     int numPointLights = 0;
     for (sceneObject* obj : objLoader.objects)
-        if (obj->type == "PointLight") numPointLights++;
+        if (LightObject* light = dynamic_cast<LightObject*>(obj)) numPointLights++;
 
     // Use texture unit 0
     cubeShader.use();
@@ -207,7 +207,7 @@ int main() {
 
         // render
         // ------
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        glClearColor(0.1f, 0.1f, 0.1f, 0.1f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // Active Shader
@@ -218,6 +218,8 @@ int main() {
         int lightnum = 0;
         for (sceneObject* obj : objLoader.objects) {
             if (LightObject* light = dynamic_cast<LightObject*>(obj)) {
+                // Set num point lights
+                cubeShader.setInt("numPointLights", numPointLights);
                 // Set Point Light
                 std::string uniformBase = "pointLights[" + std::to_string(lightnum) + "]";
                 cubeShader.setVec3(uniformBase + ".position", light->Position);
@@ -249,35 +251,42 @@ int main() {
         glBindVertexArray(VAO);
         for (sceneObject* obj : objLoader.objects) {
             glm::mat4 model = glm::mat4(1.0f);
-
-            // Translate
             model = glm::translate(model, obj->Position);
-
-            // Scale
             model = glm::scale(model, obj->Size);
-
-            // Rotate each axis one at a time
             model = glm::rotate(model, glm::radians(obj->Rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
             model = glm::rotate(model, glm::radians(obj->Rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
             model = glm::rotate(model, glm::radians(obj->Rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
 
             if (CubeObject* cube = dynamic_cast<CubeObject*>(obj)) {
-                // Pass to shader
+                cubeShader.use();
                 cubeShader.setMat4("model", model);
-                // bind to object's texture
+                cubeShader.setMat4("view", view);
+                cubeShader.setMat4("projection", projection);
+
                 glActiveTexture(GL_TEXTURE0);
                 glBindTexture(GL_TEXTURE_2D, cube->textureID);
-                // draw the cube
+
+                glBindVertexArray(VAO);
                 glDrawArrays(GL_TRIANGLES, 0, 36);
             }
             else if (LightObject* light = dynamic_cast<LightObject*>(obj)) {
-                // it's a light object
-                glBindVertexArray(lightVAO);
                 lightShader.use();
+
+                glm::mat4 lightModel = glm::mat4(1.0f);
+                lightModel = glm::translate(lightModel, light->Position);
+                lightModel = glm::scale(lightModel, glm::vec3(0.2f));  // smaller cube for lights
+
+                lightShader.setMat4("model", lightModel);
+                lightShader.setMat4("view", view);
+                lightShader.setMat4("projection", projection);
                 lightShader.setVec3("userColor", light->Color);
                 lightShader.setFloat("intensity", light->Intensity);
+
+                glBindVertexArray(lightVAO);
+                glDrawArrays(GL_TRIANGLES, 0, 36);
             }
         }
+
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
