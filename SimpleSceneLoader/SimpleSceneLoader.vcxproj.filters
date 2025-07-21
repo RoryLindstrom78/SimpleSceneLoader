@@ -46,6 +46,8 @@
     <None Include="vertexShader.vs" />
     <None Include="fragmentShader.vs" />
     <None Include="README.md" />
+    <None Include="SourceVertex.vs" />
+    <None Include="SourceFragment.vs" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="objects.txt" />

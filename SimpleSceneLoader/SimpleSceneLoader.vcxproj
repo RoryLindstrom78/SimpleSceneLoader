@@ -145,6 +145,8 @@
   <ItemGroup>
     <None Include="fragmentShader.vs" />
     <None Include="README.md" />
+    <None Include="SourceFragment.vs" />
+    <None Include="SourceVertex.vs" />
     <None Include="vertexShader.vs" />
   </ItemGroup>
   <ItemGroup>

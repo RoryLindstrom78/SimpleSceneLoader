@@ -127,7 +127,8 @@ int main() {
 
     // Need to allow usage of the z buffer to know the depth of objects
     glEnable(GL_DEPTH_TEST);
-    Shader cubeShader("vertexShader.vs", "fragmentShader.vs"); // you can name your shader files however you like
+    Shader cubeShader("vertexShader.vs", "fragmentShader.vs"); // cube shader
+    Shader lightShader("SourceVertex.vs", "SourceFragment.vs"); // light source shader
 
     unsigned int VBO, VAO;
     glGenVertexArrays(1, &VAO);
@@ -148,6 +149,15 @@ int main() {
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
     glEnableVertexAttribArray(2);
 
+    // light source VAO
+    unsigned int lightVAO;
+    glGenVertexArrays(1, &lightVAO);
+    glBindVertexArray(lightVAO);
+    // we only need to bind to the VBO, the container's VBO's data already contains the data
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+
     // get number of PointLights
     int numPointLights = 0;
     for (sceneObject* obj : objLoader.objects)
@@ -155,7 +165,7 @@ int main() {
 
     // Use texture unit 0
     cubeShader.use();
-    cubeShader.setInt("texture", 0);
+    cubeShader.setInt("texture", 0); // Right now I'm only using a diffuse map for most textures
     cubeShader.setInt("numPointLights", numPointLights);
 
     stbi_set_flip_vertically_on_load(true);
@@ -200,7 +210,25 @@ int main() {
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+        // Active Shader
         cubeShader.use();
+        cubeShader.setVec3("viewPos", camera.Position);
+
+        // Next we need to set the parameters for all of our lights in the scene
+        int lightnum = 0;
+        for (sceneObject* obj : objLoader.objects) {
+            if (LightObject* light = dynamic_cast<LightObject*>(obj)) {
+                // Set Point Light
+                std::string uniformBase = "pointLights[" + std::to_string(lightnum) + "]";
+                cubeShader.setVec3(uniformBase + ".position", light->Position);
+                cubeShader.setVec3(uniformBase + ".ambient", light->Color * 0.1f * light->Intensity);
+                cubeShader.setVec3(uniformBase + ".diffuse", light->Color * 0.8f * light->Intensity);
+                cubeShader.setVec3(uniformBase + ".specular", light->Color * 1.0f * light->Intensity);
+                cubeShader.setFloat(uniformBase + ".constant", 1.0f);
+                cubeShader.setFloat(uniformBase + ".linear", 0.09f);
+                cubeShader.setFloat(uniformBase + ".quadratic", 0.032f);
+            }
+        }
 
         // next we make a view matrix.
         glm::mat4 view;
@@ -244,6 +272,10 @@ int main() {
             }
             else if (LightObject* light = dynamic_cast<LightObject*>(obj)) {
                 // it's a light object
+                glBindVertexArray(lightVAO);
+                lightShader.use();
+                lightShader.setVec3("userColor", light->Color);
+                lightShader.setFloat("intensity", light->Intensity);
             }
         }
 
