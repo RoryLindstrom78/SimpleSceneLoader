@@ -7,35 +7,7 @@
 #include <iostream>
 #include <vector>
 
-struct sceneObject {
-	std::string type;
-	glm::vec3 Position;
-	glm::vec3 Size;
-	glm::vec3 Rotation;
-
-	sceneObject(const glm::vec3& pos, const glm::vec3& sze, const glm::vec3& rot)
-		: Position(pos), Size(sze), Rotation(rot) {
-	}
-	virtual ~sceneObject() = default;
-};
-
-struct CubeObject : public sceneObject {
-	std::string textureFile;
-	int textureID;
-
-	CubeObject(const std::string txtFile, const glm::vec3& pos, const glm::vec3& sze, const glm::vec3& rot)
-		: textureFile(txtFile), sceneObject(pos, sze, rot) {
-	}
-};
-
-struct LightObject : public sceneObject {
-	glm::vec3 Color;
-	float Intensity;
-
-	LightObject(const glm::vec3& color, const float intensity, const glm::vec3& pos, const glm::vec3& sze, const glm::vec3& rot)
-		: Color(color), Intensity(intensity), sceneObject(pos, sze, rot) {
-	}
-};
+#include "Objects.h"
 
 
 //struct sceneObject {
@@ -50,7 +22,7 @@ struct LightObject : public sceneObject {
 class objectLoader {
 public:	
 	std::ifstream inputFile;
-	std::vector<sceneObject> objects;
+	std::vector<sceneObject*> objects;
 	
 	// Basic Constructor
 	objectLoader(const std::string & FilePath) {
@@ -69,12 +41,13 @@ public:
 
 			if (parts[0] == "cube") {
 				// construct cube object
-				CubeObject cube(parts[4], parseVec3(parts[1]), parseVec3(parts[2]), parseVec3(parts[3]));
+				sceneObject* cube = new CubeObject(parts[4], parseVec3(parts[1]), parseVec3(parts[2]), parseVec3(parts[3]));
 				objects.push_back(cube);
 			}
 			else if (parts[0] == "light") {
 				// construct light object
-				LightObject light(parseVec3(parts[4]), std::stof(parts[5]), parseVec3(parts[1]), parseVec3(parts[2]), parseVec3(parts[3]));
+				sceneObject* light = new LightObject(parseVec3(parts[4]), std::stof(parts[5]), parseVec3(parts[1]), parseVec3(parts[2]), parseVec3(parts[3]));
+				objects.push_back(light);
 			}
 		}
 
@@ -110,5 +83,12 @@ public:
 		float x, y, z;
 		iss >> x >> y >> z;
 		return glm::vec3(x, y, z);
+	}
+
+	~objectLoader() {
+		for (sceneObject* obj : objects) {
+			delete obj;
+		}
+		objects.clear();
 	}
 };

@@ -12,6 +12,7 @@
 #include "shader.h"
 #include "objectLoader.h"
 #include "stb_image.h"
+#include "Objects.h"
 
 #include <vector>
 #include <string>
@@ -149,8 +150,8 @@ int main() {
 
     // get number of PointLights
     int numPointLights = 0;
-    for (sceneObject& obj : objLoader.objects)
-        if (obj.type == "PointLight") numPointLights++;
+    for (sceneObject* obj : objLoader.objects)
+        if (obj->type == "PointLight") numPointLights++;
 
     // Use texture unit 0
     cubeShader.use();
@@ -159,17 +160,27 @@ int main() {
 
     stbi_set_flip_vertically_on_load(true);
 
-    // setup textures
-    for (sceneObject obj : objLoader.objects) { // need to make sure this loop accounts for textures on cubes and colors on lights
-        sceneObject* obj = obj;
+
+    for (sceneObject* obj : objLoader.objects) {
         if (CubeObject* cube = dynamic_cast<CubeObject*>(obj)) {
-            // It's a CubeObject
-            cube->textureID = loadTexture((cube->textureFile).c_str());
+            // its a cube
+            cube->textureID = loadTexture(cube->textureFile.c_str());
         }
         else if (LightObject* light = dynamic_cast<LightObject*>(obj)) {
-            // It's a LightObject
+            // light object
         }
     }
+
+    //// setup textures
+    //for (sceneObject obj : objLoader.objects) { // need to make sure this loop accounts for textures on cubes and colors on lights
+    //    if (obj.type == "cube") {
+    //        // It's a CubeObject
+    //        CubeObject* cube = obj;
+    //    }
+    //    else if (LightObject* light = dynamic_cast<LightObject*>(obj)) {
+    //        // It's a LightObject
+    //    }
+    //}
 
     // render loop
     while (!glfwWindowShouldClose(window)) {
@@ -208,29 +219,32 @@ int main() {
         glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
         glBindVertexArray(VAO);
-        for (sceneObject obj : objLoader.objects) {
+        for (sceneObject* obj : objLoader.objects) {
             glm::mat4 model = glm::mat4(1.0f);
 
             // Translate
-            model = glm::translate(model, obj.Position);
+            model = glm::translate(model, obj->Position);
 
             // Scale
-            model = glm::scale(model, obj.Size);
+            model = glm::scale(model, obj->Size);
 
             // Rotate each axis one at a time
-            model = glm::rotate(model, glm::radians(obj.Rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
-            model = glm::rotate(model, glm::radians(obj.Rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
-            model = glm::rotate(model, glm::radians(obj.Rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
+            model = glm::rotate(model, glm::radians(obj->Rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
+            model = glm::rotate(model, glm::radians(obj->Rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
+            model = glm::rotate(model, glm::radians(obj->Rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
 
-            // Pass to shader
-            cubeShader.setMat4("model", model);
-
-            // bind object's texture
-            glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, obj.textureID); // need to account for different kinds of objects in this loop
-
-            // draw the cube
-            glDrawArrays(GL_TRIANGLES, 0, 36);
+            if (CubeObject* cube = dynamic_cast<CubeObject*>(obj)) {
+                // Pass to shader
+                cubeShader.setMat4("model", model);
+                // bind to object's texture
+                glActiveTexture(GL_TEXTURE0);
+                glBindTexture(GL_TEXTURE_2D, cube->textureID);
+                // draw the cube
+                glDrawArrays(GL_TRIANGLES, 0, 36);
+            }
+            else if (LightObject* light = dynamic_cast<LightObject*>(obj)) {
+                // it's a light object
+            }
         }
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
