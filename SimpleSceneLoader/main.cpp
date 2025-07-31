@@ -308,11 +308,11 @@ void processInput(GLFWwindow* window)
 {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
-    //if (glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS) {
-    //    // we add a new cube to the scene
-    //    sceneObject* cube = new CubeObject()
-    //    objLoader.objects.push_back()
-    //}
+    if (glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS) {
+        // we add a new cube to the scene
+        sceneObject* cube = new CubeObject(glm::vec3(0, 0, 0), glm::vec3(1, 1, 1), glm::vec3(0, 0, 0));
+        objLoader.objects.push_back(cube);
+    }
 
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
         camera.ProcessKeyboard(FORWARD, deltaTime);
