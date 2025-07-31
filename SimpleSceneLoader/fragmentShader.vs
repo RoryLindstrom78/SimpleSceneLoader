@@ -8,6 +8,7 @@ in vec3 Normal;
 
 uniform sampler2D texture_diffuse1; // Fixed name
 uniform vec3 viewPos;
+uniform bool useTexture;
 
 struct PointLight {
     vec3 position;
@@ -31,7 +32,14 @@ void main()
 {
     vec3 norm = normalize(Normal);
     vec3 viewDir = normalize(viewPos - FragPos);
-    vec3 textureColor = texture(texture_diffuse1, TexCoord).rgb;
+    
+    vec3 textureColor;
+    if (useTexture) {
+        textureColor = texture(texture_diffuse1, TexCoord).rgb;
+    }
+    else {
+        textureColor = vec4(0.6, 0.6, 0.6, 1.0).rgb;
+    }
 
     vec3 result = vec3(0.0);
 

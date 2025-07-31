@@ -38,6 +38,9 @@ bool firstMouse = true;
 float deltaTime = 0.0f; // time between current frame and last frame
 float lastFrame = 0.0f;
 
+// setup object loader, doing it globally, will fix later
+objectLoader objLoader("C:\\Users\\HACKSHIT\\source\\repos\\SimpleSceneLoader\\SimpleSceneLoader\\objects.txt");
+
 // basic cube vertices, can be scaled later
 float cube[] = {
     // positions          // normals           // texture coords
@@ -121,9 +124,6 @@ int main() {
         return -1;
     }
 
-    // setup object loader
-    objectLoader objLoader("C:\\Users\\HACKSHIT\\source\\repos\\SimpleSceneLoader\\SimpleSceneLoader\\objects.txt");
-
 
     // Need to allow usage of the z buffer to know the depth of objects
     glEnable(GL_DEPTH_TEST);
@@ -170,10 +170,10 @@ int main() {
 
     stbi_set_flip_vertically_on_load(true);
 
-
     for (sceneObject* obj : objLoader.objects) {
         if (CubeObject* cube = dynamic_cast<CubeObject*>(obj)) {
             // its a cube
+            if (cube->textureFile.empty()) continue;
             cube->textureID = loadTexture(cube->textureFile.c_str());
         }
         else if (LightObject* light = dynamic_cast<LightObject*>(obj)) {
@@ -263,8 +263,15 @@ int main() {
                 cubeShader.setMat4("view", view);
                 cubeShader.setMat4("projection", projection);
 
-                glActiveTexture(GL_TEXTURE0);
-                glBindTexture(GL_TEXTURE_2D, cube->textureID);
+                if (!cube->textureFile.empty()) {
+                    cubeShader.setBool("useTexture", true);
+                    glActiveTexture(GL_TEXTURE0);
+                    glBindTexture(GL_TEXTURE_2D, cube->textureID);
+                    cubeShader.setInt("texture_diffuse1", 0);
+                }
+                else {
+                    cubeShader.setBool("useTexture", false);
+                }
 
                 glBindVertexArray(VAO);
                 glDrawArrays(GL_TRIANGLES, 0, 36);
@@ -301,6 +308,11 @@ void processInput(GLFWwindow* window)
 {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
+    //if (glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS) {
+    //    // we add a new cube to the scene
+    //    sceneObject* cube = new CubeObject()
+    //    objLoader.objects.push_back()
+    //}
 
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
         camera.ProcessKeyboard(FORWARD, deltaTime);

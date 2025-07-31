@@ -13,11 +13,12 @@ struct sceneObject {
 };
 
 struct CubeObject : public sceneObject {
-	std::string textureFile;
+	std::string textureFile = "";
 	int textureID;
 
-	CubeObject(const std::string txtFile, const glm::vec3& pos, const glm::vec3& sze, const glm::vec3& rot)
-		: textureFile(txtFile), sceneObject(pos, sze, rot) {
+	CubeObject(const glm::vec3& pos, const glm::vec3& sze, const glm::vec3& rot, const std::string txtFile = "")
+		:sceneObject(pos, sze, rot) {
+		if (!txtFile.empty()) this->textureFile = txtFile;
 	}
 };
 

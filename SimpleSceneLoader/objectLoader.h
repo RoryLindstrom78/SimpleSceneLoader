@@ -37,12 +37,20 @@ public:
 			if (line.empty()) continue;
 			// split by tab
 			std::vector<std::string> parts = split(line, ',');
-			if (parts.size() < 5) continue; // must have all fields
+			if (parts.size() < 4) continue; // must have all fields
 
 			if (parts[0] == "cube") {
 				// construct cube object
-				sceneObject* cube = new CubeObject(parts[4], parseVec3(parts[1]), parseVec3(parts[2]), parseVec3(parts[3]));
-				objects.push_back(cube);
+				if (parts.size() == 5) {
+					// we have a texture
+					sceneObject* cube = new CubeObject(parseVec3(parts[1]), parseVec3(parts[2]), parseVec3(parts[3]), parts[4]);
+					objects.push_back(cube);
+				}
+				else {
+					// we don't have a texture
+					sceneObject* cube = new CubeObject(parseVec3(parts[1]), parseVec3(parts[2]), parseVec3(parts[3]));
+					objects.push_back(cube);
+				}
 			}
 			else if (parts[0] == "light") {
 				// construct light object
